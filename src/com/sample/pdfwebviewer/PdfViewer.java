@@ -1,16 +1,20 @@
 package com.sample.pdfwebviewer;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+@SuppressLint("NewApi")
 public class PdfViewer extends Activity{
 	private WebView webView;
 	
 
-//	inside this goes our pdf viewer, just a toy for this test. Requires  more work to make it production ready
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -19,30 +23,19 @@ public class PdfViewer extends Activity{
 		webView = (WebView) findViewById(R.id.webView1);
 		WebSettings settings = webView.getSettings();
 		settings.setJavaScriptEnabled(true);
-//		crash on tablet and unnecessary?
+
+		if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.JELLY_BEAN) //required for running javascript on android 4.1 or later
+		{
 		settings.setAllowFileAccessFromFileURLs(true);
 		settings.setAllowUniversalAccessFromFileURLs(true);
+		}
 		settings.setBuiltInZoomControls(true);
 		webView.setWebChromeClient(new WebChromeClient());
-		webView.loadUrl("file:///android_asset/pdfviewer/index.html");
-		
+		Uri path = Uri.parse(Environment.getExternalStorageDirectory().toString() + "/data/test.pdf");
+        webView.loadUrl("file:///android_asset/pdfviewer/index.html?file=" + path);
 	}
 
-//	reload on resume
-	@Override
-	protected void onResume() {
-		super.onResume();
-		webView.loadUrl( "javascript:window.location.reload( true )" );
 
-	}
-	
-//	clear cache to ensure we have good reload
-	@Override
-	protected void onPause() {
-		super.onPause();
-		webView.clearCache(true);
-
-	}
 	
 
 }
