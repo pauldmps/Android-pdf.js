@@ -1,11 +1,15 @@
 package com.sample.pdfwebviewer;
 
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -36,6 +40,40 @@ public class PdfViewer extends Activity{
 	}
 
 
+	@Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	super.onCreateOptionsMenu(menu);
+    	MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.pdf_viewer, menu);
+        return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+    	switch (item.getItemId()) {
+		case R.id.action_settings:		
+				
+			return true;
+		
+		        
+		case R.id.action_next:
+			
+		
+			webView.clearCache(true);
+			webView.loadUrl("javascript:goNext()");
+		
+		case R.id.action_previous:
+			
+			
+			webView.clearCache(true);
+			webView.loadUrl("javascript:goPrevious()");
+			
+
+		default:
+	    	return super.onOptionsItemSelected(item);
+		}
+    }
 	
 
 }

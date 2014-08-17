@@ -1,12 +1,8 @@
-  //
-    // NOTE: 
+  // NOTE: 
     // Modifying the URL below to another server will likely *NOT* work. Because of browser
     // security restrictions, we have to use a file server with special headers
     // (CORS) - most servers don't support cross-origin browser requests.
     //
-    
-    
-
 
     //
     // Disable workers to avoid yet another cross-origin issue (workers need the URL of
@@ -16,14 +12,18 @@
 
     var pdfDoc = null,
         pageNum = 1,
-        scale = 1,
+        pageRendering = false,
+        pageNumPending = null,
+        scale = 0.8,
         canvas = document.getElementById('the-canvas'),
         ctx = canvas.getContext('2d');
 
-    //
-    // Get page info from document, resize canvas accordingly, and render page
-    //
+    /**
+     * Get page info from document, resize canvas accordingly, and render page.
+     * @param num Page number.
+     */
     function renderPage(num) {
+      pageRendering = true;
       // Using promise to fetch the page
       pdfDoc.getPage(num).then(function(page) {
         var viewport = page.getViewport(scale);
@@ -35,38 +35,66 @@
           canvasContext: ctx,
           viewport: viewport
         };
-        page.render(renderContext);
+        var renderTask = page.render(renderContext);
+        
+        // Wait for rendering to finish
+        renderTask.promise.then(function () {
+          pageRendering = false;
+          if (pageNumPending !== null) {
+            // New page rendering is pending
+            renderPage(pageNumPending);
+            pageNumPending = null;
+          }
+        });
       });
 
       // Update page counters
       document.getElementById('page_num').textContent = pageNum;
-      document.getElementById('page_count').textContent = pdfDoc.numPages;
+    }
+    
+    /**
+     * If another page rendering in progress, waits until the rendering is
+     * finised. Otherwise, executes rendering immediately.
+     */
+    function queueRenderPage(num) {
+      if (pageRendering) {
+        pageNumPending = num;
+      } else {
+        renderPage(num);
+      }
     }
 
-    //
-    // Go to previous page
-    //
-    function goPrevious() {
-      if (pageNum <= 1)
+    /**
+     * Displays previous page.
+     */
+    function onPrevPage() {
+      if (pageNum <= 1) {
         return;
+      }
       pageNum--;
-      renderPage(pageNum);
+      queueRenderPage(pageNum);
     }
+    document.getElementById('prev').addEventListener('click', onPrevPage);
 
-    //
-    // Go to next page
-    //
-    function goNext() {
-      if (pageNum >= pdfDoc.numPages)
+    /**
+     * Displays next page.
+     */
+    function onNextPage() {
+      if (pageNum >= pdfDoc.numPages) {
         return;
+      }
       pageNum++;
-      renderPage(pageNum);
+      queueRenderPage(pageNum);
     }
+    document.getElementById('next').addEventListener('click', onNextPage);
 
-    //
-    // Asynchronously download PDF as an ArrayBuffer
-    //
-    PDFJS.getDocument(url).then(function getPdfHelloWorld(_pdfDoc) {
-      pdfDoc = _pdfDoc;
+    /**
+     * Asynchronously downloads PDF.
+     */
+    PDFJS.getDocument(url).then(function (pdfDoc_) {
+      pdfDoc = pdfDoc_;
+      document.getElementById('page_count').textContent = pdfDoc.numPages;
+
+      // Initial/first page rendering
       renderPage(pageNum);
     });
