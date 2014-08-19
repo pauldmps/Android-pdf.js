@@ -14,7 +14,7 @@
         pageNum = 1,
         pageRendering = false,
         pageNumPending = null,
-        scale = 0.8,
+        scale = 1.0,
         canvas = document.getElementById('the-canvas'),
         ctx = canvas.getContext('2d');
 
@@ -54,7 +54,7 @@
     
     /**
      * If another page rendering in progress, waits until the rendering is
-     * finised. Otherwise, executes rendering immediately.
+     * finished. Otherwise, executes rendering immediately.
      */
     function queueRenderPage(num) {
       if (pageRendering) {
@@ -74,7 +74,6 @@
       pageNum--;
       queueRenderPage(pageNum);
     }
-    document.getElementById('prev').addEventListener('click', onPrevPage);
 
     /**
      * Displays next page.
@@ -86,15 +85,17 @@
       pageNum++;
       queueRenderPage(pageNum);
     }
-    document.getElementById('next').addEventListener('click', onNextPage);
+    
 
     /**
      * Asynchronously downloads PDF.
      */
-    PDFJS.getDocument(url).then(function (pdfDoc_) {
+    PDFJS.getDocument(url).then(function getPdf(pdfDoc_) {
       pdfDoc = pdfDoc_;
       document.getElementById('page_count').textContent = pdfDoc.numPages;
 
       // Initial/first page rendering
       renderPage(pageNum);
     });
+    
+   

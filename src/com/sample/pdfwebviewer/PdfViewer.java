@@ -17,13 +17,15 @@ import android.webkit.WebView;
 @SuppressLint("NewApi")
 public class PdfViewer extends Activity{
 	private WebView webView;
-	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.webview);
-		 
+		
+
+	    setContentView(R.layout.webview);
+		
+	    
 		webView = (WebView) findViewById(R.id.webView1);
 		WebSettings settings = webView.getSettings();
 		settings.setJavaScriptEnabled(true);
@@ -34,11 +36,13 @@ public class PdfViewer extends Activity{
 		settings.setAllowUniversalAccessFromFileURLs(true);
 		}
 		settings.setBuiltInZoomControls(true);
+		
 		webView.setWebChromeClient(new WebChromeClient());
+		
 		Uri path = Uri.parse(Environment.getExternalStorageDirectory().toString() + "/data/test.pdf");
-        webView.loadUrl("file:///android_asset/pdfviewer/index.html?file=" + path);
+        webView.loadUrl("file:///android_asset/pdfviewer/index.html?file=" + path);     
 	}
-
+	
 
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -59,21 +63,23 @@ public class PdfViewer extends Activity{
 		        
 		case R.id.action_next:
 			
-		
-			webView.clearCache(true);
-			webView.loadUrl("javascript:goNext()");
+
+			webView.loadUrl("javascript:onNextPage()");
+	    	return super.onOptionsItemSelected(item);
+			
 		
 		case R.id.action_previous:
 			
 			
-			webView.clearCache(true);
-			webView.loadUrl("javascript:goPrevious()");
+			webView.loadUrl("javascript:onPrevPage()");
+	    	return super.onOptionsItemSelected(item);
+
 			
 
 		default:
 	    	return super.onOptionsItemSelected(item);
 		}
     }
-	
-
+ 
 }
+
