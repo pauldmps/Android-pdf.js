@@ -1,8 +1,15 @@
 package com.sample.pdfwebviewer;
 
 
+import java.io.BufferedReader;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -38,9 +45,25 @@ public class PdfViewer extends Activity{
 		settings.setBuiltInZoomControls(true);
 		
 		webView.setWebChromeClient(new WebChromeClient());
-		
 		Uri path = Uri.parse(Environment.getExternalStorageDirectory().toString() + "/data/test.pdf");
-        webView.loadUrl("file:///android_asset/pdfviewer/index.html?file=" + path);     
+		
+		try {
+			InputStream ims = getAssets().open("pdfviewer/index.html");
+			String line = getStringFromInputStream(ims);
+			if(line.contains("THE_FILE")) {
+				line = line.replace("THE_FILE", path.toString());
+				
+				FileOutputStream fileOutputStream = openFileOutput("index.html", Context.MODE_PRIVATE);
+				}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		
+		
+		
+        webView.loadUrl("file://" + getFilesDir() + "/index.html");     
 	}
 	
 
@@ -80,6 +103,35 @@ public class PdfViewer extends Activity{
 	    	return super.onOptionsItemSelected(item);
 		}
     }
+ // convert InputStream to String
+ 	private static String getStringFromInputStream(InputStream is) {
+  
+ 		BufferedReader br = null;
+ 		StringBuilder sb = new StringBuilder();
+  
+ 		String line;
+ 		try {
+  
+ 			br = new BufferedReader(new InputStreamReader(is));
+ 			while ((line = br.readLine()) != null) {
+ 				sb.append(line);
+ 			}
+  
+ 		} catch (IOException e) {
+ 			e.printStackTrace();
+ 		} finally {
+ 			if (br != null) {
+ 				try {
+ 					br.close();
+ 				} catch (IOException e) {
+ 					e.printStackTrace();
+ 				}
+ 			}
+ 		}
+  
+ 		return sb.toString();
+  
+ 	}
  
 }
 
