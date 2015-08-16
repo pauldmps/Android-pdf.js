@@ -1,3 +1,5 @@
+Noitice: I have stopped devlopment of this project (as pdf.js is unstable and not fit enough for production level) and moved to PlugPDF SDK. I will not reply to any questions or issues from now on. Feel free to fork the repo and make it better.
+
 Android-pdf.js
 ==============
 
